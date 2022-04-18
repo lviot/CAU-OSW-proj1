@@ -1,0 +1,50 @@
+.Container {
+    display: block;
+    width: var(--game-board-size);
+    margin: 50vh auto auto;
+    transform: translateY(calc(var(--game-board-size) / 2 * -1));
+    background-color: var(--backgroud-primary);
+}
+
+.GameBoard {
+    display: block;
+    position: relative;
+
+    height: var(--game-board-size);
+
+    background-size: var(--game-board-size) var(--game-board-size);
+    background-image:
+            repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent calc(var(--grid-block-size) - 1px),
+                    var(--grid-line) calc(var(--grid-block-size) - 1px),
+                    var(--grid-line) var(--grid-block-size)
+            ),
+            repeating-linear-gradient(
+                    -90deg,
+                    transparent,
+                    transparent calc(var(--grid-block-size) - 1px),
+                    var(--grid-line) calc(var(--grid-block-size) - 1px),
+                    var(--grid-line) var(--grid-block-size)
+            );
+    box-shadow: 0 0 20px #66666650;
+}
+
+.SnakeBlock {
+    position: absolute;
+
+    background-color: var(--snake);
+    /* 1px offset to avoid overlapping on grid layout */
+    height: calc(var(--grid-block-size) - 1px);
+    width: calc(var(--grid-block-size) - 1px);
+}
+
+.AppleBlock {
+    position: absolute;
+
+    background-color: var(--apple);
+    /* 1px offset to avoid overlapping on grid layout */
+    height: calc(var(--grid-block-size) - 1px);
+    width: calc(var(--grid-block-size) - 1px);
+}
