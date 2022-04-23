@@ -26,6 +26,7 @@ export class GameBoardStore {
   private _score: number = 0;
   private _running: boolean = false;
   private _pause: boolean = false;
+  private _ranking: boolean = false;
   private _gameOver: boolean = false;
 
   constructor()
@@ -70,6 +71,16 @@ export class GameBoardStore {
   }
 
   /**
+   * Ranking getter
+   * @return {boolean}
+   */
+  public get ranking(): boolean
+  {
+    return this._ranking;
+  }
+
+
+  /**
    * Game over getter
    * @return {boolean}
    */
@@ -96,10 +107,18 @@ export class GameBoardStore {
   }
 
   /**
+   * Toggle ranking state
+   * @return {number[]}
+   */
+  @action.bound public toggleRanking = () => {
+    this._ranking = !this._ranking
+  }
+
+  /**
    * Save current state in a local file
    * @return {void}
    */
-   @action.bound public saveParty = () => {
+  @action.bound public saveParty = () => {
     window.Main.saveFile({apple: toJS(this.apple), snakeBlocks: toJS(this.snakeBlocks)});
   }
 
@@ -107,10 +126,18 @@ export class GameBoardStore {
    * Load local state from a file
    * @return {void}
    */
-     @action.bound public loadParty = () => {
-      const loadedData = window.Main.loadFile();
-      this.launchGame(loadedData.snakeBlocks, loadedData.apple);
-    }
+  @action.bound public loadParty = () => {
+    const loadedData = window.Main.loadFile();
+    this.launchGame(loadedData.snakeBlocks, loadedData.apple);
+  }
+
+  /**
+   * Toggle ranking state
+   * @return {number[]}
+   */
+  @action.bound public loadRanking = () => {
+    return window.Main.loadRanking();
+  }
 
   /**
    * Change snake direction
@@ -299,7 +326,7 @@ export class GameBoardStore {
       if (this._gameOver)
       {
         this._running = false;
-        window.Main.saveScore(this._score);
+        window.Main.saveRanking(this._score);
         if (this._gameLoopIntervalId)
           clearInterval(this._gameLoopIntervalId);
         return;

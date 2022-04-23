@@ -21,8 +21,12 @@ export const api = {
     return JSON.parse(ipcRenderer.sendSync('load-file'))
   },
 
-  saveScore: (score: number) => {
-    ipcRenderer.send('save-score', score)
+  saveRanking: (score: number) => {
+    ipcRenderer.send('save-ranking', score)
+  },
+
+  loadRanking: () => {
+    return ipcRenderer.sendSync('load-ranking')
   },
 
   quitApp: () => {

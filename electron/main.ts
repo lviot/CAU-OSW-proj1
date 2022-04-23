@@ -79,8 +79,8 @@ async function registerListeners () {
   ipcMain.on('save-score', (_, score) => {
     const appRoot = app.getAppPath()
 
-    if (fs.existsSync(appRoot + '/score.json')) {
-      const fd = fs.openSync(appRoot + '/score.json', 'r+')
+    if (fs.existsSync(appRoot + '/ranking.json')) {
+      const fd = fs.openSync(appRoot + '/ranking.json', 'r+')
       const content = fs.readFileSync(fd, 'utf8')
       let data
       try {
@@ -89,18 +89,20 @@ async function registerListeners () {
         data = []
       }
       data.push(score)
-      fs.writeFileSync(appRoot + '/score.json', JSON.stringify(data))
+      fs.writeFileSync(appRoot + '/ranking.json', JSON.stringify(data))
     } else {
-      const fd = fs.openSync(`${appRoot}/score.json`, 'w')
+      const fd = fs.openSync(`${appRoot}/ranking.json`, 'w')
        fs.writeFileSync(fd, JSON.stringify([score]))
     }
   })
 
-  ipcMain.on('load-score', (event) => {
+  ipcMain.on('load-ranking', (event) => {
     const appRoot = app.getAppPath()
-    const fd = fs.openSync(`${appRoot}/score.json`, 'r')
 
-    event.returnValue = JSON.parse(fs.readFileSync(fd, 'utf8'))
+    if (fs.existsSync(appRoot + '/ranking.json')) {
+      const fd = fs.openSync(`${appRoot}/ranking.json`, 'r')
+      event.returnValue = JSON.parse(fs.readFileSync(fd, 'utf8'))
+    } else event.returnValue = []
   })
 }
 
