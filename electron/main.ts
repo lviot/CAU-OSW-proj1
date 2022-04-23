@@ -49,7 +49,6 @@ app.on('ready', createWindow)
   .catch(e => console.error(e))
 
 app.on('window-all-closed', () => {
-  console.log("wesh 3")
   if (process.platform !== 'darwin') {
     app.quit()
   }

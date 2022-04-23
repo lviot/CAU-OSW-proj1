@@ -2,7 +2,7 @@ import './index.css';
 
 import type { FC } from 'react';
 
-import React, { useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import store, { GameBoardStore } from '@stores/game-board'
 import { coordinatesToViewPosition } from '@utils/translate';

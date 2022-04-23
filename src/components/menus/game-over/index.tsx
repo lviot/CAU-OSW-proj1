@@ -2,7 +2,7 @@ import './index.css'
 
 import type { FC } from 'react';
 
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { observer } from 'mobx-react';
 import InfoModal from '@components/info-modal';
 import { Button, Title } from '@components/menus/common';

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /*
  * As enum can be used both as type and values,
  * we need to declare type and export values

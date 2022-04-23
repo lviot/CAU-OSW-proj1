@@ -2,8 +2,6 @@ import './index.css';
 
 import type { FC } from 'react';
 
-import React from 'react';
-
 export interface ButtonProps
 {
   title: string,
