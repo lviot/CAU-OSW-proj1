@@ -2,7 +2,6 @@ import './index.css'
 
 import type { FC, PropsWithChildren } from 'react';
 
-import React from 'react';
 import { observer } from 'mobx-react';
 import Modal from 'react-modal';
 

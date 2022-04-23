@@ -1,5 +1,3 @@
-import type { SnakeBlock } from '@stores/game-board';
-
 import { Direction } from '@app/@types/index.d'
 
 export function coordinatesToViewPosition(
