@@ -36,9 +36,7 @@ async function registerListeners () {
   /**
    * This comes from bridge integration, check bridge.ts
    */
-  ipcMain.on('message', (_, message) => {
-    console.log(message)
-  })
+
   ipcMain.on('app-quit', () => {
     app.quit()
   })
@@ -59,7 +57,7 @@ async function registerListeners () {
     })
   })
 
-  ipcMain.on('load-file', (event) => {
+  ipcMain.on('load-file', event => {
     const options = {
       title: 'Load your game',
       defaultPath: 'game.json',
@@ -77,22 +75,49 @@ async function registerListeners () {
       }
     })
   })
+
+  ipcMain.on('save-score', (_, score) => {
+    const appRoot = app.getAppPath()
+
+    if (fs.existsSync(appRoot + '/score.json')) {
+      const fd = fs.openSync(appRoot + '/score.json', 'r+')
+      const content = fs.readFileSync(fd, 'utf8')
+      let data
+      try {
+        data = JSON.parse(content)
+      } catch (error) {
+        data = []
+      }
+      data.push(score)
+      fs.writeFileSync(appRoot + '/score.json', JSON.stringify(data))
+    } else {
+      const fd = fs.openSync(`${appRoot}/score.json`, 'w')
+       fs.writeFileSync(fd, JSON.stringify([score]))
+    }
+  })
+
+  ipcMain.on('load-score', (event) => {
+    const appRoot = app.getAppPath()
+    const fd = fs.openSync(`${appRoot}/score.json`, 'r')
+
+    event.returnValue = JSON.parse(fs.readFileSync(fd, 'utf8'))
+  })
 }
 
-app
-  .on('ready', createWindow)
-  .whenReady()
-  .then(registerListeners)
-  .catch(e => console.error(e))
+  app
+    .on('ready', createWindow)
+    .whenReady()
+    .then(registerListeners)
+    .catch(e => console.error(e))
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+      app.quit()
+    }
+  })
 
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
-  }
-})
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
+  })
