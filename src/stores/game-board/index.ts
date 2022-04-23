@@ -1,4 +1,4 @@
-import {action, computed, makeAutoObservable, toJS,} from 'mobx';
+import {action, computed, makeAutoObservable, toJS} from 'mobx';
 import { Direction } from '@app/@types/index.d'
 import {translateBlock} from '@utils/translate';
 import {randomCoordinatesExceptValues} from '@utils/math';
@@ -96,6 +96,23 @@ export class GameBoardStore {
   }
 
   /**
+   * Save current state in a local file
+   * @return {void}
+   */
+   @action.bound public saveParty = () => {
+    window.Main.saveFile({apple: toJS(this.apple), snakeBlocks: toJS(this.snakeBlocks)});
+  }
+
+  /**
+   * Load local state from a file
+   * @return {void}
+   */
+     @action.bound public loadParty = () => {
+      const loadedData = window.Main.loadFile();
+      this.launchGame(loadedData.snakeBlocks, loadedData.apple);
+    }
+
+  /**
    * Change snake direction
    *
    * If new direction is the opposite of te current one, function has no effect
@@ -121,7 +138,7 @@ export class GameBoardStore {
    * @param {SnakeBlock[] | undefined} restoredBlocks
    * @return {void}
    */
-  @action public launchGame = (restoredBlocks?: SnakeBlock[]): void => {
+  @action public launchGame = (restoredBlocks?: SnakeBlock[], restoredApple?: Coordinates2D): void => {
     if (!Array.isArray(restoredBlocks))
     {
       this._snakeBlocks = [{
@@ -139,15 +156,22 @@ export class GameBoardStore {
       });
     }
 
-    if (this._gameLoopIntervalId)
-      clearInterval(this._gameLoopIntervalId);
+    if (restoredApple)
+    {
+      this._apple = restoredApple;
+    }
+    else
+    {
+      this._spawnApple();
+    }
+
+    if (this._gameLoopIntervalId) clearInterval(this._gameLoopIntervalId);
     this._score = 0;
     this._pause = false;
     this._running = true;
     this._gameOver = false;
     this._previousState = [];
     eventStackStore.clear();
-    this._spawnApple();
     this._run();
   }
 

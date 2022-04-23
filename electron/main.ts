@@ -1,4 +1,5 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain } from 'electron'
+import * as fs from 'fs'
 
 let mainWindow: BrowserWindow | null
 
@@ -41,9 +42,45 @@ async function registerListeners () {
   ipcMain.on('app-quit', () => {
     app.quit()
   })
+
+  ipcMain.on('save-file', (_, data) => {
+    const options = {
+      title: 'Save your game',
+      defaultPath: 'game.json',
+      buttonLabel: 'Save',
+      filters: [
+        { name: 'json', extensions: ['json'] },
+        { name: 'All Files', extensions: ['*'] },
+      ],
+    }
+    dialog.showSaveDialog(mainWindow!, options).then(result => {
+      if (result.filePath)
+        fs.writeFileSync(result.filePath, JSON.stringify(data))
+    })
+  })
+
+  ipcMain.on('load-file', (event) => {
+    const options = {
+      title: 'Load your game',
+      defaultPath: 'game.json',
+      buttonLabel: 'Load',
+      filters: [
+        { name: 'json', extensions: ['json'] },
+        { name: 'All Files', extensions: ['*'] },
+      ],
+    }
+    dialog.showOpenDialog(mainWindow!, options).then(result => {
+      if (result.filePaths[0]) {
+        const fd = fs.openSync(result.filePaths[0], 'r')
+        const content = fs.readFileSync(fd, 'utf8');
+        event.returnValue = content
+      }
+    })
+  })
 }
 
-app.on('ready', createWindow)
+app
+  .on('ready', createWindow)
   .whenReady()
   .then(registerListeners)
   .catch(e => console.error(e))
