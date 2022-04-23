@@ -1,4 +1,4 @@
-import './index.css'
+import './index.css';
 
 import type { FC } from 'react';
 
@@ -8,12 +8,11 @@ import InfoModal from '@components/info-modal';
 import { Button, Title } from '@components/menus/common';
 import store from '@stores/game-board';
 
-export interface PauseMenuProps
-{
-  visible: boolean,
+export interface PauseMenuProps {
+  visible: boolean;
 }
 
-const PauseMenu: FC<PauseMenuProps> = observer((props) => {
+const PauseMenu: FC<PauseMenuProps> = observer(props => {
   const quitApp = useCallback(() => {
     window.Main.quitApp();
   }, []);
@@ -29,7 +28,7 @@ const PauseMenu: FC<PauseMenuProps> = observer((props) => {
         <Button title="Exit" onClick={quitApp} fullWidth />
       </div>
     </InfoModal>
-  )
+  );
 });
 
 export default PauseMenu;
