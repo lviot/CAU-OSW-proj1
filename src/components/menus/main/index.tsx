@@ -24,7 +24,7 @@ const MainMenu: FC<MainMenuProps> = observer((props) => {
       <div className="ButtonContainer">
         <Button title="Play" onClick={store.launchGame} fullWidth />
         <Button title="Load" onClick={store.loadParty} fullWidth />
-        <Button title="Ranking" fullWidth />
+        <Button title="Ranking" onClick={store.toggleRanking} fullWidth />
         <Button title="Quit" onClick={quitApp} fullWidth />
       </div>
     </InfoModal>

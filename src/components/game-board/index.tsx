@@ -12,6 +12,7 @@ import {
   PauseMenu,
   GameOverMenu,
 } from '@components/menus';
+import RankingMenu from '../menus/ranking';
 
 const GridSize = 600;
 const BlockSize = GridSize / GameBoardStore.BlocksCount;
@@ -53,7 +54,8 @@ const GameBoard: FC = observer(() => {
         </div>
       </div>
 
-      <MainMenu visible={!store.running} />
+      <MainMenu visible={!store.running && !store.ranking} />
+      <RankingMenu visible={!store.running && store.ranking} />
       <PauseMenu visible={store.pause} />
       <GameOverMenu visible={store.gameOver} />
     </>
