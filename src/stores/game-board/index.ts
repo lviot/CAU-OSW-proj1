@@ -299,6 +299,7 @@ export class GameBoardStore {
       if (this._gameOver)
       {
         this._running = false;
+        window.Main.saveScore(this._score);
         if (this._gameLoopIntervalId)
           clearInterval(this._gameLoopIntervalId);
         return;
