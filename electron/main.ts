@@ -33,10 +33,6 @@ function createWindow () {
 }
 
 async function registerListeners () {
-  /**
-   * This comes from bridge integration, check bridge.ts
-   */
-
   ipcMain.on('app-quit', () => {
     app.quit()
   })
