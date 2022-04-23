@@ -13,6 +13,14 @@ export const api = {
     ipcRenderer.send('message', message)
   },
 
+  saveFile: (data: Record<string, any>) => {
+    ipcRenderer.send('save-file', data)
+  },
+
+  loadFile: () => {
+    return JSON.parse(ipcRenderer.sendSync('load-file'))
+  },
+
   quitApp: () => {
     ipcRenderer.send('app-quit')
   },

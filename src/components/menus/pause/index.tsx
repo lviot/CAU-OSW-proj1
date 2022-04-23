@@ -24,7 +24,8 @@ const PauseMenu: FC<PauseMenuProps> = observer((props) => {
       <div className="ButtonContainer">
         <Button title="Resume" onClick={store.togglePause} fullWidth />
         <Button title="Restart" onClick={store.launchGame} fullWidth />
-        <Button title="Save" fullWidth />
+        <Button title="Save" onClick={store.saveParty} fullWidth />
+        <Button title="Load" onClick={store.loadParty} fullWidth />
         <Button title="Exit" onClick={quitApp} fullWidth />
       </div>
     </InfoModal>
