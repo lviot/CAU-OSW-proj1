@@ -1,0 +1,28 @@
+@font-face {
+    font-family: ClearSans;
+    src: url(/public/fonts/clear-sans/ClearSans-Bold.woff) format('woff'),
+    url(/public/fonts/clear-sans/ClearSans-Regular.woff) format('woff');
+}
+
+:root {
+    /* Dimensions */
+    --game-board-size: 600px;
+    --grid-block-count: 40;
+    --grid-block-size: calc(var(--game-board-size) / var(--grid-block-count));
+
+    /* Palette */
+    --backgroud-primary: #EBF2FA;
+    --backgroud-secondary: #E0DFD5;
+    --font-primary: #313638;
+    --snake: #679436;
+    --apple: #F06543;
+    --grid-line: #31363810;
+}
+
+html, body {
+    overflow: hidden;
+    font-family: ClearSans, sans-serif;
+    background-color: var(--backgroud-primary);
+    height: 100vh;
+    width: 100vw;
+}
