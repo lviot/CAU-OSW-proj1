@@ -1,4 +1,4 @@
-import './index.css'
+import './index.css';
 
 import type { FC } from 'react';
 
@@ -8,12 +8,11 @@ import InfoModal from '@components/info-modal';
 import { Button, Title } from '@components/menus/common';
 import store from '@stores/game-board';
 
-export interface GameOverMenuProps
-{
-  visible: boolean,
+export interface GameOverMenuProps {
+  visible: boolean;
 }
 
-const GameOverMenu: FC<GameOverMenuProps> = observer((props) => {
+const GameOverMenu: FC<GameOverMenuProps> = observer(props => {
   const quitApp = useCallback(() => {
     window.Main.quitApp();
   }, []);
@@ -27,7 +26,7 @@ const GameOverMenu: FC<GameOverMenuProps> = observer((props) => {
         <Button title="Exit" onClick={quitApp} fullWidth />
       </div>
     </InfoModal>
-  )
+  );
 });
 
 export default GameOverMenu;
