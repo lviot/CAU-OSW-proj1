@@ -32,6 +32,15 @@ class EventStack {
     await Promise.all(this._stack.reverse().map((eventExecutor) => eventExecutor()));
     this.clear();
   }
+
+  /**
+   * Returns stack length
+   * @return {number}
+   */
+  @computed public get length(): number
+  {
+    return this._stack.length;
+  }
 }
 
 export default new EventStack();
