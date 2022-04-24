@@ -31,3 +31,20 @@
     box-shadow: 0 0 20px #66666650;
 }
 
+.SnakeBlock {
+    position: absolute;
+
+    background-color: var(--snake);
+    /* 1px offset to avoid overlapping on grid layout */
+    height: calc(var(--grid-block-size) - 1px);
+    width: calc(var(--grid-block-size) - 1px);
+}
+
+.AppleBlock {
+    position: absolute;
+
+    background-color: var(--apple);
+    /* 1px offset to avoid overlapping on grid layout */
+    height: calc(var(--grid-block-size) - 1px);
+    width: calc(var(--grid-block-size) - 1px);
+}
