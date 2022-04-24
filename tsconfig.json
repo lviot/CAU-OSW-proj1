@@ -19,5 +19,12 @@
     "strict": true ,
     "esModuleInterop": true,
     "experimentalDecorators": true,
+    "baseUrl": "./",
+    "paths": {
+      "@app/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@stores/*": ["./src/stores/*"],
+      "@utils/*": ["./src/utils/*"]
+    }
   }
 }
