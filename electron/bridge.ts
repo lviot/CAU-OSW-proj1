@@ -6,11 +6,23 @@ export const api = {
    * so they can interact with the main (electron) side
    * without security problems.
    *
-   * The function below can accessed using `window.Main.sendMessage`
+   * The function below can be accessed using `window.Main.myFunction`
    */
 
-  sendMessage: (message: string) => {
-    ipcRenderer.send('message', message)
+  saveFile: (data: Record<string, any>) => {
+    ipcRenderer.send('save-file', data)
+  },
+
+  loadFile: () => {
+    return JSON.parse(ipcRenderer.sendSync('load-file'))
+  },
+
+  saveRanking: (score: number) => {
+    ipcRenderer.send('save-ranking', score)
+  },
+
+  loadRanking: () => {
+    return ipcRenderer.sendSync('load-ranking')
   },
 
   quitApp: () => {

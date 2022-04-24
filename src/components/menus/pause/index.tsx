@@ -1,19 +1,18 @@
-import './index.css'
+import './index.css';
 
 import type { FC } from 'react';
 
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { observer } from 'mobx-react';
 import InfoModal from '@components/info-modal';
 import { Button, Title } from '@components/menus/common';
 import store from '@stores/game-board';
 
-export interface PauseMenuProps
-{
-  visible: boolean,
+export interface PauseMenuProps {
+  visible: boolean;
 }
 
-const PauseMenu: FC<PauseMenuProps> = observer((props) => {
+const PauseMenu: FC<PauseMenuProps> = observer(props => {
   const quitApp = useCallback(() => {
     window.Main.quitApp();
   }, []);
@@ -24,11 +23,12 @@ const PauseMenu: FC<PauseMenuProps> = observer((props) => {
       <div className="ButtonContainer">
         <Button title="Resume" onClick={store.togglePause} fullWidth />
         <Button title="Restart" onClick={store.launchGame} fullWidth />
-        <Button title="Save" fullWidth />
+        <Button title="Save" onClick={store.saveParty} fullWidth />
+        <Button title="Load" onClick={store.loadParty} fullWidth />
         <Button title="Exit" onClick={quitApp} fullWidth />
       </div>
     </InfoModal>
-  )
+  );
 });
 
 export default PauseMenu;

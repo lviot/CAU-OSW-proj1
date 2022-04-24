@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /*
  * As enum can be used both as type and values,
  * we need to declare type and export values
@@ -13,8 +14,8 @@ declare global {
   type Thunk<T> = T | Promise<T>;
 
   interface Coordinates2D {
-    x: number,
-    y: number,
+    x: number;
+    y: number;
   }
 
   enum Direction {

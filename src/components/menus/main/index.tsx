@@ -1,19 +1,18 @@
-import './index.css'
+import './index.css';
 
 import type { FC } from 'react';
 
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { observer } from 'mobx-react';
 import InfoModal from '@components/info-modal';
 import { Button, Title } from '@components/menus/common';
 import store from '@stores/game-board';
 
-export interface MainMenuProps
-{
-  visible: boolean,
+export interface MainMenuProps {
+  visible: boolean;
 }
 
-const MainMenu: FC<MainMenuProps> = observer((props) => {
+const MainMenu: FC<MainMenuProps> = observer(props => {
   const quitApp = useCallback(() => {
     window.Main.quitApp();
   }, []);
@@ -23,12 +22,12 @@ const MainMenu: FC<MainMenuProps> = observer((props) => {
       <Title />
       <div className="ButtonContainer">
         <Button title="Play" onClick={store.launchGame} fullWidth />
-        <Button title="Load" fullWidth />
-        <Button title="Ranking" fullWidth />
+        <Button title="Load" onClick={store.loadParty} fullWidth />
+        <Button title="Ranking" onClick={store.toggleRanking} fullWidth />
         <Button title="Quit" onClick={quitApp} fullWidth />
       </div>
     </InfoModal>
-  )
+  );
 });
 
 export default MainMenu;

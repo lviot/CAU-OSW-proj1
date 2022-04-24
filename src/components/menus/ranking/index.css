@@ -1,0 +1,13 @@
+.ButtonContainer {
+  margin: auto;
+  max-width: 400px;
+}
+
+.RankingItem {
+  text-align: center;
+}
+
+.RankingContainer {
+  max-width: 400px;
+  margin: auto;
+}
