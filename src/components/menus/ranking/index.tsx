@@ -1,21 +1,21 @@
-import './index.css'
+import './index.css';
 
-import type { FC } from 'react'
+import type { FC } from 'react';
 
-import { useCallback } from 'react'
-import { observer } from 'mobx-react'
-import InfoModal from '@components/info-modal'
-import { Button, Title } from '@components/menus/common'
-import store from '@stores/game-board'
+import { useCallback } from 'react';
+import { observer } from 'mobx-react';
+import InfoModal from '@components/info-modal';
+import { Button, Title } from '@components/menus/common';
+import store from '@stores/game-board';
 
 export interface RankingMenuProps {
-  visible: boolean
+  visible: boolean;
 }
 
 const RankingMenu: FC<RankingMenuProps> = observer(props => {
   const quitApp = useCallback(() => {
-    window.Main.quitApp()
-  }, [])
+    window.Main.quitApp();
+  }, []);
 
   return (
     <InfoModal visible={props.visible}>
@@ -36,7 +36,7 @@ const RankingMenu: FC<RankingMenuProps> = observer(props => {
         <Button title="Quit" onClick={quitApp} fullWidth />
       </div>
     </InfoModal>
-  )
-})
+  );
+});
 
-export default RankingMenu
+export default RankingMenu;
