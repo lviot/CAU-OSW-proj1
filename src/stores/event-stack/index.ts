@@ -1,0 +1,37 @@
+import {
+  action, computed,
+  makeAutoObservable,
+} from 'mobx';
+
+export type EventExecutor = () => Thunk<void>;
+
+class EventStack {
+  private _stack: EventExecutor[] = [];
+
+  constructor()
+  {
+    makeAutoObservable(this);
+  }
+
+  /**
+   * Push new event executor to the stack
+   * @param eventExecutor
+   * @return {void}
+   */
+  @action public push(eventExecutor: EventExecutor): void
+  {
+    this._stack.push(eventExecutor);
+  }
+
+  /**
+   * Execute whole stack
+   * @return {Promise<void>}
+   */
+  @action public async executeStack(): Promise<void>
+  {
+    await Promise.all(this._stack.reverse().map((eventExecutor) => eventExecutor()));
+    this.clear();
+  }
+}
+
+export default new EventStack();
