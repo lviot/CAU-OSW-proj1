@@ -14,8 +14,8 @@ declare global {
   type Thunk<T> = T | Promise<T>;
 
   interface Coordinates2D {
-    x: number,
-    y: number,
+    x: number;
+    y: number;
   }
 
   enum Direction {
