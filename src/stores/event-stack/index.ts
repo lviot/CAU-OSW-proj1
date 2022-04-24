@@ -24,6 +24,15 @@ class EventStack {
   }
 
   /**
+   * Clear stack without executing it
+   * @return {void}
+   */
+  @action public clear(): void
+  {
+    this._stack = [];
+  }
+
+  /**
    * Execute whole stack
    * @return {Promise<void>}
    */
