@@ -1,10 +1,8 @@
-## Electron + TypeScript + React
+## Snake
 
-Boilerplate for a project using Electron, React and Typescript.
+Snake game for OSS class - CAU.
 
 ## Installation
-
-Use a package manager of your choice (npm, yarn, etc.) in order to install all dependencies
 
 ```bash
 yarn
@@ -20,16 +18,6 @@ yarn start
 
 ## Packaging
 
-To generate the project package based on the OS you're running on, just run:
-
 ```bash
 yarn package
 ```
-
-## Contributing
-
-Pull requests are always welcome 😃.
-
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
