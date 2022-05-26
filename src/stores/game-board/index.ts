@@ -29,6 +29,7 @@ export class GameBoardStore {
   private _ranking: boolean = false;
   private _gameOver: boolean = false;
   private _isAI: boolean = false;
+  private _isAuto: number = 0;
 
   constructor() {
     makeAutoObservable(this);
@@ -165,9 +166,12 @@ export class GameBoardStore {
      * This prevent multiple calls to setDirection, and
      * so the ability to move to the opposite direction
      */
-    eventStackStore.push(() => {
-      this._snakeHead.direction = direction;
-    });
+    if (this._isAI) this._snakeHead.direction = direction;
+    else {
+      eventStackStore.push(() => {
+        this._snakeHead.direction = direction;
+      });
+    }
   }
 
   /**
@@ -308,7 +312,46 @@ export class GameBoardStore {
   }
 
   // look in the game baord and find wich move is better to go to the apple lcoation
-  private getAINextMove(): void {}
+  @action private getAINextMove(): void {
+    const { coordinates, direction } = this._snakeHead;
+    const appleCoordinates = this._apple;
+
+    if (this._isHeadOnApple) {
+      if (direction === Direction.TOP || Direction.BOTTOM)
+        this.setDirection(coordinates.x < 20 ? Direction.RIGHT : Direction.LEFT);
+      else
+        this.setDirection(coordinates.y < 20 ? Direction.BOTTOM : Direction.TOP);
+      return
+    }
+
+    if (this._isAuto === 1) {
+      if (coordinates.y === 39 || coordinates.y === 0 || coordinates.x === 39 || coordinates.x === 0)
+        this._isAuto = 0;
+        this.setDirection(direction);
+    } else if (coordinates.y === appleCoordinates.y) {
+      if (coordinates.x < appleCoordinates.x) {
+        this.setDirection(Direction.RIGHT);
+      } else if(coordinates.x > appleCoordinates.x) {
+        this.setDirection(Direction.LEFT);
+      }
+    } else if (coordinates.x === appleCoordinates.x) {
+      if (coordinates.y < appleCoordinates.y) {
+        this.setDirection(Direction.BOTTOM);
+      } else if(coordinates.y > appleCoordinates.y) {
+        this.setDirection(Direction.TOP);
+      }
+    } else {
+      if (coordinates.y > appleCoordinates.y) {
+        if (direction === Direction.BOTTOM && coordinates.x !== appleCoordinates.x)
+          this.setDirection(coordinates.x > appleCoordinates.x ? Direction.LEFT : Direction.RIGHT);
+        else this.setDirection(Direction.TOP);
+      } else {
+        if (direction === Direction.TOP && coordinates.x !== appleCoordinates.x)
+          this.setDirection(coordinates.x > appleCoordinates.x ? Direction.LEFT : Direction.RIGHT);
+        else this.setDirection(Direction.BOTTOM);
+      }
+    }
+  }
 
   /**
    * Game loop
