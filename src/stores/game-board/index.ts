@@ -165,9 +165,13 @@ export class GameBoardStore {
      * This prevent multiple calls to setDirection, and
      * so the ability to move to the opposite direction
      */
-    eventStackStore.push(() => {
-      this._snakeHead.direction = direction;
-    });
+
+    if (this._isAI) this._snakeHead.direction = direction;
+    else {
+      eventStackStore.push(() => {
+        this._snakeHead.direction = direction;
+      });
+    }
   }
 
   /**
@@ -308,7 +312,33 @@ export class GameBoardStore {
   }
 
   // look in the game baord and find wich move is better to go to the apple lcoation
-  private getAINextMove(): void {}
+  private getAINextMove(): void {
+    const { coordinates, direction } = this._snakeHead;
+    const appleCoordinates = this._apple;
+
+    if (this._isHeadOnApple) return;
+
+    if (coordinates.y === appleCoordinates.y) {
+      // on the same line
+      this.setDirection(coordinates.x > appleCoordinates.x ? Direction.LEFT : Direction.RIGHT);
+    } else if (coordinates.x === appleCoordinates.x) {
+      // on the same column
+      this.setDirection(coordinates.y > appleCoordinates.y ? Direction.TOP : Direction.BOTTOM);
+    } else {
+      // on a diagonal
+      if (coordinates.y > appleCoordinates.y) {
+        // apple is on the top
+        if (direction === Direction.BOTTOM)
+          this.setDirection(coordinates.x > appleCoordinates.x ? Direction.LEFT : Direction.RIGHT);
+        else this.setDirection(Direction.TOP);
+      } else {
+        // apple is on the bottom
+        if (direction === Direction.TOP)
+          this.setDirection(coordinates.x > appleCoordinates.x ? Direction.LEFT : Direction.RIGHT);
+        else this.setDirection(Direction.BOTTOM);
+      }
+    }
+  }
 
   /**
    * Game loop
@@ -340,7 +370,7 @@ export class GameBoardStore {
 
         this._previousState = toJS(this._snakeBlocks);
       }),
-      GameBoardStore.Ticks
+      GameBoardStore.Ticks / (this._isAI ? 2 : 1)
     );
   }
 }
