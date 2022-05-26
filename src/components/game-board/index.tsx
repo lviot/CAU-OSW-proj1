@@ -8,7 +8,7 @@ import store, { GameBoardStore } from '@stores/game-board';
 import { coordinatesToViewPosition } from '@utils/translate';
 import { Direction } from '@app/@types/index.d';
 import { MainMenu, PauseMenu, GameOverMenu } from '@components/menus';
-import RankingMenu from '../menus/ranking';
+import RankingMenu from '@components/menus/ranking';
 
 const GridSize = 600;
 const BlockSize = GridSize / GameBoardStore.BlocksCount;
