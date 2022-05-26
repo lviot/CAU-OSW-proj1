@@ -21,10 +21,11 @@ const MainMenu: FC<MainMenuProps> = observer(props => {
     <InfoModal visible={props.visible}>
       <Title />
       <div className="ButtonContainer">
-        <Button title="Play" onClick={store.launchGame} fullWidth />
-        <Button title="Load" onClick={store.loadParty} fullWidth />
-        <Button title="Ranking" onClick={store.toggleRanking} fullWidth />
-        <Button title="Quit" onClick={quitApp} fullWidth />
+        <Button title="SINGLE PLAY" onClick={store.launchGame} fullWidth />
+        <Button title="AUTO PLAY " onClick={store.lanchAiGame} fullWidth />
+        <Button title="LOAD" onClick={store.loadParty} fullWidth />
+        <Button title="RANKING" onClick={store.toggleRanking} fullWidth />
+        <Button title="QUIT" onClick={quitApp} fullWidth />
       </div>
     </InfoModal>
   );

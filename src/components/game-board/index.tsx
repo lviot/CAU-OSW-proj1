@@ -8,7 +8,7 @@ import store, { GameBoardStore } from '@stores/game-board';
 import { coordinatesToViewPosition } from '@utils/translate';
 import { Direction } from '@app/@types/index.d';
 import { MainMenu, PauseMenu, GameOverMenu } from '@components/menus';
-import RankingMenu from '../menus/ranking';
+import RankingMenu from '@components/menus/ranking';
 
 const GridSize = 600;
 const BlockSize = GridSize / GameBoardStore.BlocksCount;
@@ -16,9 +16,9 @@ const PauseKey = 32; // Space bar
 
 const GameBoard: FC = observer(() => {
   const eventListener = useCallback(({ keyCode, ...e }: KeyboardEvent) => {
-    if (Object.values(Direction).includes(keyCode)) store.setDirection(keyCode);
+    if (!store.isAI && Object.values(Direction).includes(keyCode)) store.setDirection(keyCode);
     else if (keyCode === PauseKey) store.togglePause();
-  }, []);
+  }, [store.isAI]);
 
   useEffect(() => {
     document.addEventListener('keydown', eventListener);
