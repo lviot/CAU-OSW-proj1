@@ -1,31 +1,31 @@
 import './index.css';
 
-import type { FC } from 'react';
-
-import { useCallback } from 'react';
-import { observer } from 'mobx-react';
+import type {FC} from 'react';
+import {useCallback} from 'react';
+import {observer} from 'mobx-react';
 import InfoModal from '@components/info-modal';
-import { Button, Title } from '@components/menus/common';
+import {Button, Title} from '@components/menus/common';
 import store from '@stores/game-board';
+import {GameMode} from "@app/@types/index.d";
 
 export interface PauseMenuProps {
   visible: boolean;
 }
 
 const PauseMenu: FC<PauseMenuProps> = observer(props => {
-  const quitApp = useCallback(() => {
-    window.Main.quitApp();
-  }, []);
-
   return (
     <InfoModal visible={props.visible}>
       <Title />
       <div className="ButtonContainer">
-        <Button title="Resume" onClick={store.togglePause} fullWidth />
-        <Button title="Restart" onClick={store.launchGame} fullWidth />
-        <Button title="Save" onClick={store.saveParty} fullWidth />
-        <Button title="Load" onClick={store.loadParty} fullWidth />
-        <Button title="Exit" onClick={quitApp} fullWidth />
+        <Button title="RESUME" onClick={store.togglePause} fullWidth />
+        <Button title="RESTART" onClick={store.launchGame} fullWidth />
+        {store.gameMode !== GameMode.DualPlayer && (
+          <>
+            <Button title="SAVE" onClick={store.saveParty} fullWidth />
+            <Button title="LOAD" onClick={store.loadParty} fullWidth />
+          </>
+        )}
+        <Button title="BACK TO MAIN" onClick={store.stopGame} fullWidth />
       </div>
     </InfoModal>
   );
