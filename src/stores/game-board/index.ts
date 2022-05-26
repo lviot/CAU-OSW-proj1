@@ -326,7 +326,7 @@ export class GameBoardStore {
         this._gameOver = this._checkCollisions();
         if (this._gameOver) {
           this._running = false;
-          window.Main.saveRanking(this._score);
+          if (!this._isAI) window.Main.saveRanking(this._score);
           if (this._gameLoopIntervalId) clearInterval(this._gameLoopIntervalId);
           return;
         }
