@@ -1,16 +1,28 @@
-import { action, computed, makeAutoObservable, toJS } from 'mobx';
-import { Direction } from '@app/@types/index.d';
-import { translateBlock } from '@utils/translate';
-import { randomCoordinatesExceptValues } from '@utils/math';
+import {action, computed, makeAutoObservable, observable, toJS,} from 'mobx';
+import {Direction, GameMode} from '@app/@types/index.d';
+import {translateBlock} from '@utils/translate';
+import {randomCoordinatesExceptValues} from '@utils/math';
 import eventStackStore from '@stores/event-stack';
+import {DirectionP2, mapDirectionP2ToDirection} from "@utils/direction";
 
 export interface SnakeBlock {
   coordinates: Coordinates2D;
   direction: Direction;
 }
 
+export enum Player {
+  Player1,
+  Player2
+}
+
+const DefaultColSize = new Map<GameMode, number>([
+  [GameMode.SinglePlayer, 40],
+  [GameMode.DualPlayer, 80],
+]);
+
 export class GameBoardStore {
-  static BlocksCount = 40;
+  static RowBlocksCount = 40;
+  @observable static ColBlocksCount: number = DefaultColSize.get(GameMode.SinglePlayer)!;
   static Ticks = 1000 / 12;
   static InvalidDirectionChanges = new Map([
     [Direction.TOP, Direction.BOTTOM],
@@ -19,15 +31,20 @@ export class GameBoardStore {
     [Direction.RIGHT, Direction.LEFT],
   ]);
 
-  private _snakeBlocks: SnakeBlock[] = [];
-  private _previousState: SnakeBlock[] = [];
+  private _gameMode: GameMode = GameMode.SinglePlayer;
+  private _snakeBlocksP1: SnakeBlock[] = [];
+  private _snakeBlocksP2: SnakeBlock[] = [];
+  private _previousStateP1: SnakeBlock[] = [];
+  private _previousStateP2: SnakeBlock[] = [];
+  private _scoreP1: number = 0;
+  private _scoreP2: number = 0;
   private _apple: Coordinates2D = null!;
   private _gameLoopIntervalId: NodeJS.Timeout | null = null;
-  private _score: number = 0;
   private _running: boolean = false;
   private _pause: boolean = false;
   private _ranking: boolean = false;
   private _gameOver: boolean = false;
+  private _playerWon: Player | null = null;
   private _isAI: boolean = false;
 
   constructor() {
@@ -35,11 +52,54 @@ export class GameBoardStore {
   }
 
   /**
-   * Snake blocks coordinates getter
+   * Game mode getter
+   * @return {GameMode}
+   */
+  public get gameMode(): GameMode {
+    return this._gameMode;
+  }
+
+  public get winner() {
+    return this._playerWon;
+  }
+
+  @action.bound public stopGame = (): void => {
+    this._playerWon = null;
+    this._previousStateP1 = [];
+    this._scoreP1 = 0;
+    this._previousStateP2 = [];
+    this._scoreP2 = 0;
+
+    if (this._gameLoopIntervalId) clearInterval(this._gameLoopIntervalId);
+    this._pause = false;
+    this._running = false;
+    this._gameOver = false;
+    this._ranking = false;
+  }
+
+  /**
+   * Game mode setter
+   * @param mode
+   */
+  @action public set gameMode(mode: GameMode) {
+    GameBoardStore.ColBlocksCount = DefaultColSize.get(mode)!
+    this._gameMode = mode;
+  }
+
+  /**
+   * Player 1 snake blocks coordinates getter
    * @return {SnakeBlock[]}
    */
-  public get snakeBlocks(): SnakeBlock[] {
-    return this._snakeBlocks;
+  public get snakeBlocksP1(): SnakeBlock[] {
+    return this._snakeBlocksP1;
+  }
+
+  /**
+   * Player 2 snake blocks coordinates getter
+   * @return {SnakeBlock[]}
+   */
+  public get snakeBlocksP2(): SnakeBlock[] {
+    return this._snakeBlocksP2;
   }
 
   /**
@@ -83,11 +143,19 @@ export class GameBoardStore {
   }
 
   /**
-   * Score getter
+   * Player 1 score getter
    * @return {number}
    */
-  public get score(): number {
-    return this._score;
+  public get scoreP1(): number {
+    return this._scoreP1;
+  }
+
+  /**
+   * Player 2 score getter
+   * @return {number}
+   */
+  public get scoreP2(): number {
+    return this._scoreP1;
   }
 
   /**
@@ -121,7 +189,7 @@ export class GameBoardStore {
   @action.bound public saveParty = () => {
     window.Main.saveFile({
       apple: toJS(this.apple),
-      snakeBlocks: toJS(this.snakeBlocks),
+      snakeBlocksP1: toJS(this.snakeBlocksP1),
     });
   };
 
@@ -131,7 +199,7 @@ export class GameBoardStore {
    */
   @action.bound public loadParty = () => {
     const loadedData = window.Main.loadFile();
-    this.launchGame(loadedData.snakeBlocks, loadedData.apple);
+    this.launchGame(loadedData.snakeBlocksP1, loadedData.apple);
   };
 
   /**
@@ -159,51 +227,90 @@ export class GameBoardStore {
    * @return {void}
    */
   @action public setDirection(direction: Direction): void {
-    if (this._pause || GameBoardStore.InvalidDirectionChanges.get(direction) === this._snakeHead.direction) return;
+    if (this._pause || GameBoardStore.InvalidDirectionChanges.get(direction) === this._snakeBlocksP1[0].direction) return;
     /*
      * Will be executed on the next tick:
      * This prevent multiple calls to setDirection, and
      * so the ability to move to the opposite direction
      */
     eventStackStore.push(() => {
-      this._snakeHead.direction = direction;
+      this._snakeBlocksP1[0].direction = direction;
     });
   }
 
-  /**
-   * Init variables and launch game
-   * @param {SnakeBlock[] | undefined} restoredBlocks
-   * @return {void}
-   */
-  @action public launchGame = (restoredBlocks?: SnakeBlock[], restoredApple?: Coordinates2D): void => {
+  @action public setDirectionP2(directionP2: DirectionP2): void {
+    const direction = mapDirectionP2ToDirection(directionP2)
+    if (this._pause || GameBoardStore.InvalidDirectionChanges.get(direction) === this._snakeBlocksP2[0].direction) return;
+    eventStackStore.push(() => {
+      this._snakeBlocksP2[0].direction = direction;
+    });
+  }
+
+  @action private _initSinglePlayerGame(restoredBlocks?: SnakeBlock[], restoredApple?: Coordinates2D) {
     if (!Array.isArray(restoredBlocks)) {
-      this._snakeBlocks = [
+      this._snakeBlocksP1 = [
         {
           direction: Direction.TOP,
           coordinates: {
-            x: Math.ceil(GameBoardStore.BlocksCount / 2),
-            y: Math.ceil(GameBoardStore.BlocksCount / 2),
+            x: Math.ceil(GameBoardStore.ColBlocksCount / 2),
+            y: Math.ceil(GameBoardStore.RowBlocksCount / 2),
           },
         },
       ];
     } else {
       restoredBlocks.forEach(block => {
-        this._snakeBlocks.push(block);
+        this._snakeBlocksP1.push(block);
       });
     }
-
     if (restoredApple) {
       this._apple = restoredApple;
     } else {
       this._spawnApple();
     }
 
+    this._previousStateP1 = [];
+    this._scoreP1 = 0;
+  }
+
+  @action private _initDualPlayerGame() {
+    this._snakeBlocksP1 = [{
+      direction: Direction.TOP,
+      coordinates: { x: GameBoardStore.ColBlocksCount - 1, y: GameBoardStore.RowBlocksCount - 1 },
+    }];
+    this._snakeBlocksP2 = [{
+      direction: Direction.BOTTOM,
+      coordinates: { x: 0, y: 0 },
+    }];
+
+    this._spawnApple();
+
+    this._playerWon = null;
+    this._previousStateP1 = [];
+    this._scoreP1 = 0;
+    this._previousStateP2 = [];
+    this._scoreP2 = 0;
+  }
+
+  /**
+   * Init variables and launch game
+   * @param {SnakeBlock[] | undefined} restoredBlocks
+   * @param {Coordinates2D | undefined} restoredApple
+   * @return {void}
+   */
+  @action public launchGame = (restoredBlocks?: SnakeBlock[], restoredApple?: Coordinates2D): void => {
+    switch (this._gameMode) {
+      case GameMode.SinglePlayer:
+        this._initSinglePlayerGame(restoredBlocks, restoredApple);
+        break;
+      case GameMode.DualPlayer:
+        this._initDualPlayerGame();
+        break;
+    }
+
     if (this._gameLoopIntervalId) clearInterval(this._gameLoopIntervalId);
-    this._score = 0;
     this._pause = false;
     this._running = true;
     this._gameOver = false;
-    this._previousState = [];
     eventStackStore.clear();
     this._run();
   };
@@ -214,38 +321,30 @@ export class GameBoardStore {
    * @return {void}
    */
   @action private _spawnApple(): void {
-    this._apple = randomCoordinatesExceptValues(
-      0,
-      GameBoardStore.BlocksCount - 1,
-      this._snakeBlocks.map(({ coordinates }) => coordinates)
-    );
-  }
+    let invalidValues = this._snakeBlocksP1.map(({ coordinates }) => coordinates)
 
-  /**
-   * Returns snake head
-   * @private
-   * @return {SnakeBlock}
-   */
-  @computed private get _snakeHead(): SnakeBlock {
-    return this._snakeBlocks[0];
-  }
+    if (this.gameMode === GameMode.DualPlayer) {
+      invalidValues = [
+        ...invalidValues,
+        ...this._snakeBlocksP2.map(({ coordinates }) => coordinates),
+      ];
+    }
 
-  /**
-   * Returns snake tail
-   * @private
-   * @return {SnakeBlock}
-   */
-  @computed private get _snakeTail(): SnakeBlock {
-    return this._snakeBlocks[this._snakeBlocks.length - 1];
+    this._apple = randomCoordinatesExceptValues({
+      x: { max: GameBoardStore.ColBlocksCount - 1 },
+      y: { max: GameBoardStore.RowBlocksCount - 1 },
+      invalidValues,
+    });
   }
 
   /**
    * Check if snake hits the apple
    * @private
+   * @param {Player | undefined} player
    * @returns {boolean}
    */
-  @computed private get _isHeadOnApple(): boolean {
-    const { coordinates } = this._snakeHead;
+  @computed private _isHeadOnApple(player: Player = Player.Player1): boolean {
+    const { coordinates } = (player === Player.Player1 ? this._snakeBlocksP1 : this._snakeBlocksP2)[0];
     return coordinates.x === this._apple.x && coordinates.y === this._apple.y;
   }
 
@@ -254,8 +353,10 @@ export class GameBoardStore {
    * @private
    * @return {void}
    */
-  @action private _snakeGrowUp(): void {
-    const { coordinates, direction } = this._previousState[this._previousState.length - 1];
+  @action private _snakeGrowUp(player: Player = Player.Player1): void {
+    const previousState = player === Player.Player1 ? this._previousStateP1 : this._previousStateP2;
+    const snakeBlocks = player === Player.Player1 ? this._snakeBlocksP1 : this._snakeBlocksP2;
+    const { coordinates, direction } = previousState[previousState.length - 1];
     let newCoordinates: Coordinates2D;
 
     switch (direction) {
@@ -272,8 +373,11 @@ export class GameBoardStore {
         newCoordinates = { x: coordinates.x + 1, y: coordinates.y };
         break;
     }
-    this._score++;
-    this._snakeBlocks.push({ direction, coordinates: newCoordinates });
+    if (player === Player.Player1)
+      this._scoreP1++;
+    else
+      this._scoreP2++;
+    snakeBlocks.push({ direction, coordinates: newCoordinates });
   }
 
   /**
@@ -281,30 +385,47 @@ export class GameBoardStore {
    * @private
    * @return {boolean}
    */
-  private _checkCollisions(): boolean {
-    const { coordinates, direction } = this._snakeHead;
+  private _checkCollisions(player: Player = Player.Player1): boolean {
+    const snakeBlocks = player === Player.Player1 ? this._snakeBlocksP1 : this._snakeBlocksP2;
+    const { coordinates, direction } = snakeBlocks[0];
 
     const checkWallCollision = () =>
       (coordinates.x === 0 && direction === Direction.LEFT) ||
-      (coordinates.x >= GameBoardStore.BlocksCount - 1 && direction === Direction.RIGHT) ||
+      (coordinates.x >= GameBoardStore.ColBlocksCount - 1 && direction === Direction.RIGHT) ||
       (coordinates.y === 0 && direction === Direction.TOP) ||
-      (coordinates.y >= GameBoardStore.BlocksCount - 1 && direction === Direction.BOTTOM);
+      (coordinates.y >= GameBoardStore.RowBlocksCount - 1 && direction === Direction.BOTTOM);
 
     const checkSelfCollision = () => {
       const nextHeadCoordinates = translateBlock(coordinates, direction);
 
-      if (this._snakeBlocks.length <= 1) return false;
-      return this._snakeBlocks
+      if (snakeBlocks.length <= 1) return false;
+      return snakeBlocks
         .slice(1)
         .some(({ coordinates }) => coordinates.x === nextHeadCoordinates.x && coordinates.y === nextHeadCoordinates.y);
     };
 
-    if (this._isHeadOnApple) {
-      this._snakeGrowUp();
+    const checkPlayersCollision = () => {
+      const { coordinates: headCoordinates } = snakeBlocks[0];
+      const enemySnakeBlocks = player === Player.Player1 ? this._snakeBlocksP2 : this._snakeBlocksP1;
+      return enemySnakeBlocks.some(({ coordinates: { x, y } }) => headCoordinates.x === x && headCoordinates.y === y);
+    }
+
+    if (this._isHeadOnApple(player)) {
+      this._snakeGrowUp(player);
       this._spawnApple();
     }
 
-    return checkWallCollision() || checkSelfCollision();
+    if (this.gameMode === GameMode.DualPlayer && checkPlayersCollision()) {
+      this._playerWon = player === Player.Player1 ? Player.Player2 : Player.Player1;
+      return true;
+    }
+
+    if (checkWallCollision() || checkSelfCollision()) {
+      this._playerWon = player === Player.Player1 ? Player.Player2 : Player.Player1;
+      return true;
+    }
+
+    return false;
   }
 
   // look in the game baord and find wich move is better to go to the apple lcoation
@@ -323,22 +444,41 @@ export class GameBoardStore {
         eventStackStore.executeStack().catch(console.warn);
         if (this._isAI) this.getAINextMove();
 
-        this._gameOver = this._checkCollisions();
+        if (this.gameMode === GameMode.DualPlayer)
+        {
+          if (this._checkCollisions(Player.Player2) || this._checkCollisions(Player.Player1))
+            this._gameOver = true;
+        }
+        else
+          this._gameOver = this._checkCollisions();
+
         if (this._gameOver) {
           this._running = false;
-          if (!this._isAI) window.Main.saveRanking(this._score);
+
+          if (this.gameMode === GameMode.SinglePlayer && !this._isAI)
+            window.Main.saveRanking(this._scoreP1);
           if (this._gameLoopIntervalId) clearInterval(this._gameLoopIntervalId);
+
           return;
         }
 
-        this._snakeBlocks.forEach((block, index) => {
-          const direction = this._previousState?.[index - 1]?.direction ?? this._snakeBlocks[index].direction;
+        this._snakeBlocksP1.forEach((block, index) => {
+          const direction = this._previousStateP1?.[index - 1]?.direction ?? this._snakeBlocksP1[index].direction;
           const coordinates = translateBlock(block.coordinates, direction);
 
-          this._snakeBlocks[index] = { direction, coordinates };
+          this._snakeBlocksP1[index] = { direction, coordinates };
         });
 
-        this._previousState = toJS(this._snakeBlocks);
+        this._snakeBlocksP2.forEach((block, index) => {
+          const direction = this._previousStateP2?.[index - 1]?.direction ?? this._snakeBlocksP2[index].direction;
+          const coordinates = translateBlock(block.coordinates, direction);
+
+          this._snakeBlocksP2[index] = { direction, coordinates };
+        });
+
+        this._previousStateP1 = toJS(this._snakeBlocksP1);
+        if (this.gameMode === GameMode.DualPlayer)
+          this._previousStateP2 = toJS(this._snakeBlocksP2);
       }),
       GameBoardStore.Ticks
     );
