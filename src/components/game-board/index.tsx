@@ -10,15 +10,27 @@ import { Direction } from '@app/@types/index.d';
 import { MainMenu, PauseMenu, GameOverMenu } from '@components/menus';
 import RankingMenu from '@components/menus/ranking';
 
-const GridSize = 600;
-const BlockSize = GridSize / GameBoardStore.BlocksCount;
-const PauseKey = 32; // Space bar
+const GridHeight = 600;
+const BlockSize = GridHeight / GameBoardStore.RowBlocksCount;
+const PauseKey = 27; // ESC
 
 const GameBoard: FC = observer(() => {
   const eventListener = useCallback(({ keyCode, ...e }: KeyboardEvent) => {
     if (!store.isAI && Object.values(Direction).includes(keyCode)) store.setDirection(keyCode);
     else if (keyCode === PauseKey) store.togglePause();
   }, [store.isAI]);
+
+  const gridWidth = useMemo(() => {
+    return (GameBoardStore.ColBlocksCount * GridHeight) / GameBoardStore.RowBlocksCount;
+  }, [ GameBoardStore.ColBlocksCount ]);
+  const containerStyle = useMemo(() => ({
+    width: gridWidth,
+    transform: `translateY(${GridHeight / 2 * -1}px)`
+  }), [ gridWidth ]);
+  const gameBoardStyle = useMemo(() => ({
+    height: GridHeight,
+    backgroundSize: `${gridWidth} ${gridWidth}`,
+  }), [ gridWidth ]);
 
   useEffect(() => {
     document.addEventListener('keydown', eventListener);
@@ -29,8 +41,8 @@ const GameBoard: FC = observer(() => {
 
   return (
     <>
-      <div className="Container">
-        <div className="GameBoard">
+      <div className="Container" style={containerStyle}>
+        <div className="GameBoard" style={gameBoardStyle}>
           {store.apple && <div className="AppleBlock" style={coordinatesToViewPosition(store.apple, BlockSize)} />}
 
           {store.snakeBlocks.map(({ coordinates: { x, y } }) => (
