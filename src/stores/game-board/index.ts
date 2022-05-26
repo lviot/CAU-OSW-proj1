@@ -28,6 +28,7 @@ export class GameBoardStore {
   private _pause: boolean = false;
   private _ranking: boolean = false;
   private _gameOver: boolean = false;
+  private _isAI: boolean = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -90,6 +91,14 @@ export class GameBoardStore {
   }
 
   /**
+   * Score getter
+   * @return {number}
+   */
+  public get isAI(): boolean {
+    return this._isAI;
+  }
+
+  /**
    * Toggle pause state
    * @return {void}
    */
@@ -131,6 +140,15 @@ export class GameBoardStore {
    */
   @action.bound public loadRanking = () => {
     return window.Main.loadRanking();
+  };
+
+  /**
+   * Load local state from a file
+   * @return {void}
+   */
+  @action.bound public lanchAiGame = () => {
+    this._isAI = true;
+    this.launchGame();
   };
 
   /**
@@ -289,6 +307,9 @@ export class GameBoardStore {
     return checkWallCollision() || checkSelfCollision();
   }
 
+  // look in the game baord and find wich move is better to go to the apple lcoation
+  private getAINextMove(): void {}
+
   /**
    * Game loop
    * @private
@@ -300,6 +321,7 @@ export class GameBoardStore {
         if (this._pause) return;
 
         eventStackStore.executeStack().catch(console.warn);
+        if (this._isAI) this.getAINextMove();
 
         this._gameOver = this._checkCollisions();
         if (this._gameOver) {

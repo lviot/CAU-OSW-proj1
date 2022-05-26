@@ -16,9 +16,9 @@ const PauseKey = 32; // Space bar
 
 const GameBoard: FC = observer(() => {
   const eventListener = useCallback(({ keyCode, ...e }: KeyboardEvent) => {
-    if (Object.values(Direction).includes(keyCode)) store.setDirection(keyCode);
+    if (!store.isAI && Object.values(Direction).includes(keyCode)) store.setDirection(keyCode);
     else if (keyCode === PauseKey) store.togglePause();
-  }, []);
+  }, [store.isAI]);
 
   useEffect(() => {
     document.addEventListener('keydown', eventListener);

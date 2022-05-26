@@ -22,6 +22,7 @@ const MainMenu: FC<MainMenuProps> = observer(props => {
       <Title />
       <div className="ButtonContainer">
         <Button title="Play" onClick={store.launchGame} fullWidth />
+        <Button title="AI plays" onClick={store.lanchAiGame} fullWidth />
         <Button title="Load" onClick={store.loadParty} fullWidth />
         <Button title="Ranking" onClick={store.toggleRanking} fullWidth />
         <Button title="Quit" onClick={quitApp} fullWidth />
