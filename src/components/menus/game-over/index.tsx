@@ -1,9 +1,7 @@
 import './index.css';
 
-import type { FC } from 'react';
-
-import { useCallback } from 'react';
-import { observer } from 'mobx-react';
+import type {FC} from 'react';
+import {observer} from 'mobx-react';
 import InfoModal from '@components/info-modal';
 import { Button, Title } from '@components/menus/common';
 import store from '@stores/game-board';
@@ -13,17 +11,13 @@ export interface GameOverMenuProps {
 }
 
 const GameOverMenu: FC<GameOverMenuProps> = observer(props => {
-  const quitApp = useCallback(() => {
-    window.Main.quitApp();
-  }, []);
-
   return (
     <InfoModal visible={props.visible}>
       <Title />
       <Title content={`Score: ${store.score}`} />
       <div className="ButtonContainer">
-        <Button title="Play again" onClick={store.launchGame} fullWidth />
-        <Button title="Exit" onClick={quitApp} fullWidth />
+        <Button title="PLAY AGAIN" onClick={store.launchGame} fullWidth />
+        <Button title="BACK TO MAIN" onClick={store.stopGame} fullWidth />
       </div>
     </InfoModal>
   );
