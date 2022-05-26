@@ -1,12 +1,12 @@
 import './index.css';
 
-import type {FC} from 'react';
-import {useCallback} from 'react';
-import {observer} from 'mobx-react';
+import type { FC } from 'react';
+
+import { observer } from 'mobx-react';
 import InfoModal from '@components/info-modal';
-import {Button, Title} from '@components/menus/common';
+import { Button, Title } from '@components/menus/common';
 import store from '@stores/game-board';
-import {GameMode} from "@app/@types/index.d";
+import { GameMode } from '@app/@types/index.d';
 
 export interface PauseMenuProps {
   visible: boolean;

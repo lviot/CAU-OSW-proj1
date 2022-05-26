@@ -1,9 +1,15 @@
-import {action, computed, makeAutoObservable, observable, toJS,} from 'mobx';
-import {Direction, GameMode} from '@app/@types/index.d';
-import {translateBlock} from '@utils/translate';
-import {randomCoordinatesExceptValues} from '@utils/math';
+import {
+  action,
+  computed,
+  makeAutoObservable,
+  observable,
+  toJS,
+} from 'mobx';
+import { Direction, GameMode } from '@app/@types/index.d';
+import { translateBlock } from '@utils/translate';
+import { randomCoordinatesExceptValues } from '@utils/math';
 import eventStackStore from '@stores/event-stack';
-import {DirectionP2, mapDirectionP2ToDirection} from "@utils/direction";
+import { DirectionP2, mapDirectionP2ToDirection } from '@utils/direction';
 
 export interface SnakeBlock {
   coordinates: Coordinates2D;

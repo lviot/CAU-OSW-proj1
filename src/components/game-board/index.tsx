@@ -1,14 +1,15 @@
 import './index.css';
 
-import type {FC} from 'react';
-import {useCallback, useEffect, useMemo} from 'react';
-import {observer} from 'mobx-react-lite';
-import store, {GameBoardStore} from '@stores/game-board';
-import {coordinatesToViewPosition} from '@utils/translate';
-import {Direction, GameMode} from '@app/@types/index.d';
-import {GameOverMenu, MainMenu, PauseMenu} from '@components/menus';
+import type { FC } from 'react';
+
+import { useCallback, useEffect, useMemo } from 'react';
+import { observer } from 'mobx-react-lite';
+import store, { GameBoardStore } from '@stores/game-board';
+import { coordinatesToViewPosition } from '@utils/translate';
+import { Direction, GameMode } from '@app/@types/index.d';
+import { GameOverMenu, MainMenu, PauseMenu } from '@components/menus';
 import RankingMenu from '@components/menus/ranking';
-import {DirectionP2} from '@app/utils/direction';
+import { DirectionP2 } from '@app/utils/direction';
 
 const GridHeight = 600;
 const BlockSize = GridHeight / GameBoardStore.RowBlocksCount;
