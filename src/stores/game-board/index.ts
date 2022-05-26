@@ -386,7 +386,7 @@ export class GameBoardStore {
         this._previousState = toJS(this._snakeBlocks);
         if (this._isAI) this.getAINextMove();
       }),
-      GameBoardStore.Ticks / (this._isAI ? 4 : 1)
+      GameBoardStore.Ticks / (this._isAI ? 2 : 1)
     );
   }
 }
