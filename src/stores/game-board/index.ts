@@ -316,7 +316,23 @@ export class GameBoardStore {
     const { coordinates, direction } = this._snakeHead;
     const appleCoordinates = this._apple;
 
-    if (this._isHeadOnApple) return;
+    if (
+      (coordinates.x === 0 && direction === Direction.LEFT) ||
+      (coordinates.x === 39 && direction === Direction.RIGHT)
+    ) {
+      // if going straight toward a wall (left/right)
+      this.setDirection(coordinates.y > appleCoordinates.y ? Direction.BOTTOM : Direction.TOP);
+      return;
+    }
+
+    if (
+      (coordinates.y === 0 && direction === Direction.TOP) ||
+      (coordinates.y === 39 && direction === Direction.BOTTOM)
+    ) {
+      // if going straight toward a wall (top/bottom)
+      this.setDirection(coordinates.x > appleCoordinates.x ? Direction.LEFT : Direction.RIGHT);
+      return;
+    }
 
     if (coordinates.y === appleCoordinates.y) {
       // on the same line
@@ -351,7 +367,6 @@ export class GameBoardStore {
         if (this._pause) return;
 
         eventStackStore.executeStack().catch(console.warn);
-        if (this._isAI) this.getAINextMove();
 
         this._gameOver = this._checkCollisions();
         if (this._gameOver) {
@@ -369,8 +384,9 @@ export class GameBoardStore {
         });
 
         this._previousState = toJS(this._snakeBlocks);
+        if (this._isAI) this.getAINextMove();
       }),
-      GameBoardStore.Ticks / (this._isAI ? 2 : 1)
+      GameBoardStore.Ticks / (this._isAI ? 4 : 1)
     );
   }
 }
