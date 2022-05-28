@@ -70,6 +70,7 @@ export class GameBoardStore {
     this._scoreP1 = 0;
     this._previousStateP2 = [];
     this._scoreP2 = 0;
+    this._isAI = false;
 
     if (this._gameLoopIntervalId) clearInterval(this._gameLoopIntervalId);
     this._pause = false;
@@ -516,7 +517,7 @@ export class GameBoardStore {
         this._previousStateP1 = toJS(this._snakeBlocksP1);
         if (this.gameMode === GameMode.DualPlayer) this._previousStateP2 = toJS(this._snakeBlocksP2);
       }),
-      GameBoardStore.Ticks
+      GameBoardStore.Ticks / (this._isAI ? 2 : 1)
     );
   }
 }
