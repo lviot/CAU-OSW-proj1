@@ -70,7 +70,7 @@ async function registerListeners () {
     })
   })
 
-  ipcMain.on('save-score', (_, score) => {
+  ipcMain.on('save-ranking', (_, score) => {
     const appRoot = app.getAppPath()
 
     if (fs.existsSync(appRoot + '/ranking.json')) {
