@@ -1,8 +1,6 @@
 .Container {
     display: block;
-    width: var(--game-board-size);
-    margin: 50vh auto auto;
-    transform: translateY(calc(var(--game-board-size) / 2 * -1));
+    margin: 50vh auto;
     background-color: var(--backgroud-primary);
 }
 
@@ -10,9 +8,6 @@
     display: block;
     position: relative;
 
-    height: var(--game-board-size);
-
-    background-size: var(--game-board-size) var(--game-board-size);
     background-image:
             repeating-linear-gradient(
                     0deg,

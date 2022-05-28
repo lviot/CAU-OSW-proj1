@@ -7,6 +7,7 @@ import { observer } from 'mobx-react';
 import InfoModal from '@components/info-modal';
 import { Button, Title } from '@components/menus/common';
 import store from '@stores/game-board';
+import { GameMode } from '@app/@types/index.d';
 
 export interface MainMenuProps {
   visible: boolean;
@@ -21,7 +22,21 @@ const MainMenu: FC<MainMenuProps> = observer(props => {
     <InfoModal visible={props.visible}>
       <Title />
       <div className="ButtonContainer">
-        <Button title="SINGLE PLAY" onClick={store.launchGame} fullWidth />
+        <Button
+          title="SINGLE PLAY"
+          onClick={() => {
+            store.gameMode = GameMode.SinglePlayer;
+            store.launchGame();
+          }}
+          fullWidth
+        />
+        <Button
+          title="2 PLAYERS"
+          onClick={() => {
+            store.gameMode = GameMode.DualPlayer;
+            store.launchGame();
+          }}
+          fullWidth />
         <Button title="AUTO PLAY " onClick={store.lanchAiGame} fullWidth />
         <Button title="LOAD" onClick={store.loadParty} fullWidth />
         <Button title="RANKING" onClick={store.toggleRanking} fullWidth />
