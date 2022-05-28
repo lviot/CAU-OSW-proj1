@@ -1,8 +1,8 @@
 .Modal {
     all: unset;
     position: absolute;
-    top: 30vh;
-    bottom: 30vh;
+    top: 25vh;
+    bottom: 25vh;
     left: 25vw;
     right: 25vw;
     background-color: var(--backgroud-primary);
@@ -28,8 +28,8 @@
 
 @media screen and (max-height: 900px) {
     .Modal {
-        top: 20vh;
-        bottom: 20vh;
+        top: 15vh;
+        bottom: 15vh;
     }
 }
 

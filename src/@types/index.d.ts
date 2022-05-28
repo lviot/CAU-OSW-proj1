@@ -10,6 +10,11 @@ export enum Direction {
   LEFT = 37, // arrow left
 }
 
+export enum GameMode {
+  'SinglePlayer',
+  'DualPlayer',
+}
+
 declare global {
   type Thunk<T> = T | Promise<T>;
 
