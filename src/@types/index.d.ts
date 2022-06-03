@@ -11,8 +11,8 @@ export enum Direction {
 }
 
 export enum GameMode {
-  'SinglePlayer',
-  'DualPlayer',
+  'SinglePlayer' = 1,
+  'DualPlayer' = 2,
 }
 
 declare global {
