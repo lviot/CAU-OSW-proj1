@@ -10,6 +10,11 @@ export interface SnakeBlock {
   direction: Direction;
 }
 
+export interface IsHeadOnAppleResult {
+  isHeadOnApple: boolean;
+  index?: number;
+}
+
 export enum Player {
   Player1,
   Player2,
@@ -38,7 +43,7 @@ export class GameBoardStore {
   private _previousStateP2: SnakeBlock[] = [];
   private _scoreP1: number = 0;
   private _scoreP2: number = 0;
-  private _apple: Coordinates2D = null!;
+  private _apple: Coordinates2D[] = null!;
   private _gameLoopIntervalId: NodeJS.Timeout | null = null;
   private _running: boolean = false;
   private _pause: boolean = false;
@@ -106,9 +111,9 @@ export class GameBoardStore {
 
   /**
    * Apple coordinates getter
-   * @return {Coordinates2D}
+   * @return {Coordinates2D[]}
    */
-  public get apple(): Coordinates2D {
+  public get apple(): Coordinates2D[] {
     return this._apple;
   }
 
@@ -253,7 +258,7 @@ export class GameBoardStore {
     });
   }
 
-  @action private _initSinglePlayerGame(restoredBlocks?: SnakeBlock[], restoredApple?: Coordinates2D) {
+  @action private _initSinglePlayerGame(restoredBlocks?: SnakeBlock[], restoredApple?: Coordinates2D[]) {
     if (!Array.isArray(restoredBlocks)) {
       this._snakeBlocksP1 = [
         {
@@ -272,7 +277,7 @@ export class GameBoardStore {
     if (restoredApple) {
       this._apple = restoredApple;
     } else {
-      this._spawnApple();
+      this._spawnApple(this._gameMode);
     }
 
     this._previousStateP1 = [];
@@ -293,7 +298,7 @@ export class GameBoardStore {
       },
     ];
 
-    this._spawnApple();
+    this._spawnApple(this._gameMode);
 
     this._playerWon = null;
     this._previousStateP1 = [];
@@ -308,7 +313,7 @@ export class GameBoardStore {
    * @param {Coordinates2D | undefined} restoredApple
    * @return {void}
    */
-  @action public launchGame = (restoredBlocks?: SnakeBlock[], restoredApple?: Coordinates2D): void => {
+  @action public launchGame = (restoredBlocks?: SnakeBlock[], restoredApple?: Coordinates2D[]): void => {
     switch (this._gameMode) {
       case GameMode.SinglePlayer:
         this._initSinglePlayerGame(restoredBlocks, restoredApple);
@@ -331,7 +336,7 @@ export class GameBoardStore {
    * @private
    * @return {void}
    */
-  @action private _spawnApple(): void {
+  @action private _spawnApple(quantity: number, targetIndex?: number): void {
     let invalidValues = this._snakeBlocksP1.map(({ coordinates }) => coordinates);
 
     if (this.gameMode === GameMode.DualPlayer) {
@@ -342,6 +347,9 @@ export class GameBoardStore {
       x: { max: GameBoardStore.ColBlocksCount - 1 },
       y: { max: GameBoardStore.RowBlocksCount - 1 },
       invalidValues,
+      quantity,
+      targetIndex,
+      apples: this._apple,
     });
   }
 
@@ -351,9 +359,20 @@ export class GameBoardStore {
    * @param {Player | undefined} player
    * @returns {boolean}
    */
-  @computed private _isHeadOnApple(player: Player = Player.Player1): boolean {
+  @computed private _isHeadOnApple(player: Player = Player.Player1): IsHeadOnAppleResult {
     const { coordinates } = (player === Player.Player1 ? this._snakeBlocksP1 : this._snakeBlocksP2)[0];
-    return coordinates.x === this._apple.x && coordinates.y === this._apple.y;
+    let ret: IsHeadOnAppleResult = {
+      isHeadOnApple: false,
+    };
+    this._apple.forEach((apple, index) => {
+      if (coordinates.x === apple.x && coordinates.y === apple.y) {
+        ret = {
+          isHeadOnApple: true,
+          index,
+        };
+      }
+    });
+    return ret;
   }
 
   /**
@@ -416,9 +435,10 @@ export class GameBoardStore {
       return enemySnakeBlocks.some(({ coordinates: { x, y } }) => headCoordinates.x === x && headCoordinates.y === y);
     };
 
-    if (this._isHeadOnApple(player)) {
+    const { isHeadOnApple, index } = this._isHeadOnApple(player);
+    if (isHeadOnApple) {
       this._snakeGrowUp(player);
-      this._spawnApple();
+      this._spawnApple(this._gameMode, index);
     }
 
     if (this.gameMode === GameMode.DualPlayer && checkPlayersCollision()) {
@@ -437,9 +457,11 @@ export class GameBoardStore {
   // look in the game baord and find wich move is better to go to the apple lcoation
   @action private getAINextMove(): void {
     const { coordinates, direction } = this._snakeBlocksP1[0];
-    const appleCoordinates = this._apple;
+    const appleCoordinates = this._apple[0];
 
-    if (this._isHeadOnApple()) {
+    const { isHeadOnApple } = this._isHeadOnApple();
+
+    if (isHeadOnApple) {
       if (direction === Direction.TOP || Direction.BOTTOM)
         this.setDirection(coordinates.x < 20 ? Direction.RIGHT : Direction.LEFT);
       else this.setDirection(coordinates.y < 20 ? Direction.BOTTOM : Direction.TOP);
