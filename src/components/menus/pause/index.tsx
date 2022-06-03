@@ -25,7 +25,14 @@ const PauseMenu: FC<PauseMenuProps> = observer(props => {
             <Button title="LOAD" onClick={store.loadParty} fullWidth />
           </>
         )}
-        <Button title="BACK TO MAIN" onClick={store.stopGame} fullWidth />
+        <Button
+          title="BACK TO MAIN"
+          onClick={() => {
+            store.gameMode = GameMode.SinglePlayer;
+            store.stopGame();
+          }}
+          fullWidth
+        />
       </div>
     </InfoModal>
   );
