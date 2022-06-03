@@ -16,16 +16,21 @@ const GameOverMenu: FC<GameOverMenuProps> = observer(props => {
   return (
     <InfoModal visible={props.visible}>
       <Title />
-      {store.gameMode === GameMode.SinglePlayer
-        ? (
-          <Title content={`Score: ${store.scoreP1}`} />
-        )
-        : (
-          <Title content={`Player ${store.winner === Player.Player1 ? 1 : 2} won!`} />
-        )}
+      {store.gameMode === GameMode.SinglePlayer ? (
+        <Title content={`Score: ${store.scoreP1}`} />
+      ) : (
+        <Title content={`Player ${store.winner === Player.Player1 ? 1 : 2} won!`} />
+      )}
       <div className="ButtonContainer">
         <Button title="PLAY AGAIN" onClick={store.launchGame} fullWidth />
-        <Button title="BACK TO MAIN" onClick={store.stopGame} fullWidth />
+        <Button
+          title="BACK TO MAIN"
+          onClick={() => {
+            store.gameMode = GameMode.SinglePlayer;
+            store.stopGame();
+          }}
+          fullWidth
+        />
       </div>
     </InfoModal>
   );
